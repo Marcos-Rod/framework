@@ -63,12 +63,60 @@ class Model
         return $this->query($sql)->first();
     }
 
-    public function where($column, $value)
+    public function where($column, $operator, $value = null)
     {
+        if($value == null){
+            $value = $operator;
+            $operator = '=';
+        }
+
+        $value = $this->connection->real_escape_string($value);
+        
         //SELECT * FROM table WHERE name = 'value'
-        $sql = "SELECT * FROM {$this->table} WHERE {$column} = '{$value}'";
+        $sql = "SELECT * FROM {$this->table} WHERE {$column} {$operator} '{$value}'";
 
         $this->query($sql);
         return $this;
+    }
+
+    public function create($data){
+        //INSERT INTO table (value1, value2, value3) VALUES ('value1', 'value2', 'value3')
+
+        $columns = implode(', ', array_keys($data));
+        $values = "'" . implode("', '", array_values($data)) . "'";
+
+        $sql = "INSERT INTO {$this->table} ({$columns}) VALUES ({$values})";
+
+        $this->query($sql);
+        
+        $insert_id = $this->connection->insert_id;
+
+        return $this->find($insert_id);
+        
+    }
+
+    public function update($id, $data){
+        //UPDATE table SET name1 = '', name2 = '', name3 = '' WHERE id = 1
+        $fields = [];
+        foreach ($data as $key => $value) {
+            $fields[] = "{$key} = '{$value}'";
+        }
+
+        $fields = implode(', ', $fields);
+
+        $sql = "UPDATE {$this->table} SET {$fields} WHERE id = {$id}";
+
+        $this->query($sql);
+
+        return $this->find($id);
+        
+    }
+
+    public function delete($id){
+        //DELETE FROM table WHERE id = 1
+
+        $sql = "DELETE FROM {$this->table} WHERE id = {$id}";
+
+        $this->query($sql);
     }
 }
