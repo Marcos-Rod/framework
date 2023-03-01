@@ -9,14 +9,11 @@ class ContactController extends Controller
     public function index()
     {
         $model = new Contact;
-        return $model->where('id', '>', 1)
-                ->orderBy('phone')
-                ->paginate(3);
         
         if(isset($_GET['search'])){
-            $contacts = $model->where('name', 'LIKE', '%' . $_GET['search'] . '%')->paginate(1);
+            $contacts = $model->where('name', 'LIKE', '%' . $_GET['search'] . '%')->paginate(10);
         } else {
-            $contacts = $model->paginate(3);
+            $contacts = $model->paginate(10);
         }
 
         return $this->view('contact.index', compact('contacts'));
