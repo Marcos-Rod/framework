@@ -21,4 +21,8 @@ class Controller{
             return "no existe";
         }
     }
+
+    public function redirect($route){
+        header("Location: {$route}");
+    }
 }
